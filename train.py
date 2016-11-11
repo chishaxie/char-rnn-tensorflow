@@ -25,11 +25,11 @@ def main():
                        help='number of layers in the RNN')
     parser.add_argument('--model', type=str, default='lstm',
                        help='rnn, gru, or lstm')
-    parser.add_argument('--batch_size', type=int, default=32,
+    parser.add_argument('--batch_size', type=int, default=20,
                        help='minibatch size')
     parser.add_argument('--seq_length', type=int, default=33,
                        help='RNN sequence length')
-    parser.add_argument('--num_epochs', type=int, default=200,
+    parser.add_argument('--num_epochs', type=int, default=300,
                        help='number of epochs')
     parser.add_argument('--save_every', type=int, default=5000,
                        help='save frequency')

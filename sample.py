@@ -16,6 +16,8 @@ from model import Model
 
 from six import text_type
 
+import ppzz
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--save_dir', type=str, default='save',
@@ -44,10 +46,11 @@ def sample(args):
             saver.restore(sess, ckpt.model_checkpoint_path)
             out = (model.sample(sess, chars, vocab, args.n, args.prime, args.sample))
             #print(out)
-            fmt = re.compile(u'(.{7}，.{7}。.{7}，.{7}。)\n')
+            fmt = re.compile(ur'([^，。\s]{7}，[^，。\s]{7}。[^，。\s]{7}，[^，。\s]{7}。)\n')
             ss = fmt.findall(out)
             for s in ss:
-                print(s)
+                pz = ppzz.pz_for_7j(s)
+                print(s, pz)
 
 if __name__ == '__main__':
     main()
