@@ -8,6 +8,7 @@ import tensorflow as tf
 import argparse
 import time
 import os
+import sys
 from six.moves import cPickle
 
 from utils import TextLoader
@@ -19,26 +20,26 @@ def main():
                        help='data directory containing input.txt')
     parser.add_argument('--save_dir', type=str, default='save',
                        help='directory to store checkpointed models')
-    parser.add_argument('--rnn_size', type=int, default=512,
+    parser.add_argument('--rnn_size', type=int, default=128,
                        help='size of RNN hidden state')
     parser.add_argument('--num_layers', type=int, default=2,
                        help='number of layers in the RNN')
     parser.add_argument('--model', type=str, default='lstm',
                        help='rnn, gru, or lstm')
-    parser.add_argument('--batch_size', type=int, default=20,
+    parser.add_argument('--batch_size', type=int, default=50,
                        help='minibatch size')
-    parser.add_argument('--seq_length', type=int, default=33,
+    parser.add_argument('--seq_length', type=int, default=2*33,
                        help='RNN sequence length')
-    parser.add_argument('--num_epochs', type=int, default=300,
+    parser.add_argument('--num_epochs', type=int, default=500,
                        help='number of epochs')
     parser.add_argument('--save_every', type=int, default=5000,
                        help='save frequency')
     parser.add_argument('--grad_clip', type=float, default=5.,
                        help='clip gradients at this value')
-    parser.add_argument('--learning_rate', type=float, default=0.001,
+    parser.add_argument('--learning_rate', type=float, default=0.002,
                        help='learning rate')
-    parser.add_argument('--decay_rate', type=float, default=0.97,
-                       help='decay rate for rmsprop')                       
+    parser.add_argument('--decay_rate', type=float, default=0.997,
+                       help='decay rate for rmsprop')
     parser.add_argument('--init_from', type=str, default=None,
                        help="""continue training from saved model at this path. Path must contain files saved by previous training process: 
                             'config.pkl'        : configuration;
@@ -47,13 +48,16 @@ def main():
                                                   Note: this file contains absolute paths, be careful when moving files around;
                             'model.ckpt-*'      : file(s) with model definition (created by tf)
                         """)
+    parser.add_argument('--tensorboard', action='store_true',
+                       help='Turn on the TensorBoard')
     args = parser.parse_args()
     train(args)
 
 def train(args):
     data_loader = TextLoader(args.data_dir, args.batch_size, args.seq_length)
     args.vocab_size = data_loader.vocab_size
-    
+    print("vocab_size: %s" % args.vocab_size)
+
     # check compatibility if training is continued from previously saved model
     if args.init_from is not None:
         # check if all necessary files exist 
@@ -87,6 +91,9 @@ def train(args):
     with tf.Session() as sess:
         tf.initialize_all_variables().run()
         saver = tf.train.Saver(tf.all_variables())
+        merged_summary_op = tf.merge_all_summaries()
+        if args.tensorboard:
+            summary_writer = tf.train.SummaryWriter('/tmp/char-rnn', sess.graph)
         # restore model
         if args.init_from is not None:
             saver.restore(sess, ckpt.model_checkpoint_path)
@@ -101,18 +108,27 @@ def train(args):
                 for i, (c, h) in enumerate(model.initial_state):
                     feed[c] = state[i].c
                     feed[h] = state[i].h
-                train_loss, state, _ = sess.run([model.cost, model.final_state, model.train_op], feed)
+                train_loss, state, _, summary_str = sess.run([
+                    model.cost,
+                    model.final_state,
+                    model.train_op,
+                    merged_summary_op], feed)
+                if args.tensorboard:
+                    summary_writer.add_summary(summary_str,
+                        e * data_loader.num_batches + b)
                 end = time.time()
                 if (e * data_loader.num_batches + b) % 10 == 0:
                     print("{}/{} (epoch {}), train_loss = {:.3f}, time/batch = {:.3f}" \
                         .format(e * data_loader.num_batches + b,
                             args.num_epochs * data_loader.num_batches,
                             e, train_loss, end - start))
+                    sys.stdout.flush()
                 if (e * data_loader.num_batches + b) % args.save_every == 0\
                     or (e==args.num_epochs-1 and b == data_loader.num_batches-1): # save for the last result
                     checkpoint_path = os.path.join(args.save_dir, 'model.ckpt')
                     saver.save(sess, checkpoint_path, global_step = e * data_loader.num_batches + b)
                     print("model saved to {}".format(checkpoint_path))
+                    sys.stdout.flush()
 
 if __name__ == '__main__':
     main()

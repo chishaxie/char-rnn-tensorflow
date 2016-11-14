@@ -7,6 +7,27 @@ from tensorflow.python.ops import seq2seq
 
 import numpy as np
 
+# bs -> batch_size
+# sl -> seq_length
+# vs -> vocab_size
+# rs -> rnn_size
+# input_data [bs][sl]
+#   embedding
+# [bs][sl][rs]
+#   split, squeeze
+# [bs][rs] * sl
+#   rnn_decoder
+# outputs [bs][rs] * sl
+#   concat, reshape
+# [bs * sl][rs]
+#   *W + b
+# [bs * sl][vs]
+# sequence_loss_by_example:
+#   (logits: [bs * sl][vs],
+#    targets: [bs * sl],
+#    weights: [bs * sl], (全1.0)
+#   )
+
 class Model():
     def __init__(self, args, infer=False):
         self.args = args
@@ -53,6 +74,11 @@ class Model():
                 [tf.ones([args.batch_size * args.seq_length])],
                 args.vocab_size)
         self.cost = tf.reduce_sum(loss) / args.batch_size / args.seq_length
+        tf.scalar_summary("cost", self.cost)
+        if self.args.tensorboard:
+            tf.histogram_summary("softmax_w", softmax_w)
+            tf.histogram_summary("softmax_b", softmax_b)
+            tf.histogram_summary("embedding", embedding)
         self.final_state = last_state
         self.lr = tf.Variable(0.0, trainable=False)
         tvars = tf.trainable_variables()

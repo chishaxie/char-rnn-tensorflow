@@ -45,7 +45,8 @@ def sample(args):
         if ckpt and ckpt.model_checkpoint_path:
             saver.restore(sess, ckpt.model_checkpoint_path)
             out = (model.sample(sess, chars, vocab, args.n, args.prime, args.sample))
-            #print(out)
+            print(out)
+            print('--------------------------------')
             fmt = re.compile(ur'([^，。\s]{7}，[^，。\s]{7}。[^，。\s]{7}，[^，。\s]{7}。)\n')
             ss = fmt.findall(out)
             for s in ss:
