@@ -22,15 +22,15 @@ def main():
                        help='directory to store checkpointed models')
     parser.add_argument('--rnn_size', type=int, default=128,
                        help='size of RNN hidden state')
-    parser.add_argument('--num_layers', type=int, default=2,
+    parser.add_argument('--num_layers', type=int, default=3,
                        help='number of layers in the RNN')
     parser.add_argument('--model', type=str, default='lstm',
                        help='rnn, gru, or lstm')
     parser.add_argument('--batch_size', type=int, default=50,
                        help='minibatch size')
-    parser.add_argument('--seq_length', type=int, default=2*33,
+    parser.add_argument('--seq_length', type=int, default=33,
                        help='RNN sequence length')
-    parser.add_argument('--num_epochs', type=int, default=500,
+    parser.add_argument('--num_epochs', type=int, default=800,
                        help='number of epochs')
     parser.add_argument('--save_every', type=int, default=5000,
                        help='save frequency')
@@ -38,7 +38,7 @@ def main():
                        help='clip gradients at this value')
     parser.add_argument('--learning_rate', type=float, default=0.002,
                        help='learning rate')
-    parser.add_argument('--decay_rate', type=float, default=0.997,
+    parser.add_argument('--decay_rate', type=float, default=0.999,
                        help='decay rate for rmsprop')
     parser.add_argument('--init_from', type=str, default=None,
                        help="""continue training from saved model at this path. Path must contain files saved by previous training process: 

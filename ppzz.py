@@ -30,22 +30,26 @@ std_pz_7j = [
     (u'(仄)仄(平)平仄仄平,(平)平(仄)仄仄平平,(平)平(仄)仄平平仄,(仄)仄平平仄仄平', '124'),
     (u'(仄)仄(平)平平仄仄,(平)平(仄)仄仄平平,(平)平(仄)仄平平仄,(仄)仄平平仄仄平', '24'),
 ]
+# 十八韵：
 std_yy = {
-    'a': 1, 'ia': 1, 'ua': 1,
-    'ai': 2, 'uai': 2,
-    'an': 3, 'ian': 3, 'uan': 3, 'van': 3,
-    'ang': 4, 'iang': 4, 'uang': 4,
-    'ao': 5, 'iao': 5,
-    'e': 6, 'o': 6, 'uo': 6,
-    'ei': 7, 'ui': 7,
-    'en': 8, 'in': 8, 'un': 8, 'vn': 8,
-    'eng': 9, 'ing': 9, 'ong': 9, 'iong': 9,
-    'i': 10, 'er': 10,
-    'ie': 11, 'ye': 11,
-    'ou': 12, 'iu': 12,
-    'u': 13,
-    'v': 14,
-    've': 15,
+    'a': 1, 'ua': 1, 'ia': 1, # 一麻，新华字典里的韵母 a、ua、ia 同属一个韵部。
+    'o': 2, 'uo':2, # 二波，韵母 o、uo。
+    'e': 3, # 三歌，韵母 e。
+    'ie': 4, 'ue': 4, # 四皆，韵母 ie、ue。
+    'i': 5, # 五支，韵母 i (属 zh、ch、sh、z、c、s声母，与七齐有别)。
+    'er': 6, # 六儿，韵母 er。
+    #'i': 7, # 七齐，韵母 i (属声母 b、p、m、f、d、t、n、l、j、q、x、y，有别于五支)。
+    'ei': 8, 'ui': 8, # 八微，韵母 ei、ui。
+    'ai': 9, 'uai': 9, # 九开，韵母 ai、uai。
+    'u': 10, # 十姑，韵母 u。
+    'v': 11, # 十一鱼，韵母 v。
+    'ou': 12, 'iu': 12, # 十二侯，韵母 ou、iu。
+    'ao': 13, # 十三豪，韵母 ao。
+    'an': 14, 'ian': 14, 'uan': 14, # 十四寒，韵母 an、ian、uan。
+    'en': 15, 'in': 15, 'un': 15, 'vn': 15, # 十五痕，韵母 en、in、un、vn。
+    'ang': 16, 'uang': 16, 'iang': 16, # 十六唐，韵母 ang、uang、iang。
+    'eng': 17, 'ing': 17, # 十七庚，韵母 eng、ing。
+    'ong': 18, 'iong': 18, # 十八东，韵母 ong、iong。
 }
 
 def _pre():
@@ -89,7 +93,7 @@ def pz_for_7j(s):
     else:
         assert 0
     yms = [pypinyin.lazy_pinyin(c, style=pypinyin.STYLE_FINALS)[0] for c in ss]
-    yyg = [std_yy[ym] if ym in std_yy else 16 for ym in yms]
+    yyg = [std_yy[ym] if ym in std_yy else 99 for ym in yms]
     #print yy, ss, yms, yyg
     return max_d, len(set(yyg)) - 1
 
